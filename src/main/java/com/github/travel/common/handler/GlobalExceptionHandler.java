@@ -1,11 +1,12 @@
 package com.github.travel.common.handler;
 
 import com.github.commonlib.ApiException;
-import com.github.commonlib.ApiResponse;
 import com.github.commonlib.ErrorCode;
+import com.github.commonlib.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,19 +18,27 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<?>> handleBadRequestException(Exception e) {
+    public ResponseEntity<ErrorResponse> handleBadRequestException(Exception e) {
         log.error("Exception: {}" , e);
 
-        ApiResponse response = ApiResponse.error(ErrorCode.BAD_REQUEST, e.getMessage());
+        ErrorResponse response = new ErrorResponse(ErrorCode.BAD_REQUEST, e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
 
     @ExceptionHandler(ApiException.class)
-    public ResponseEntity<ApiResponse<?>> handleApiException(ApiException e) {
+    public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
         log.error("Exception: {}" , e);
 
-        ApiResponse response = ApiResponse.error(e.getErrorCode());
+        ErrorResponse response = new ErrorResponse(e.getErrorCode(), e.getMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationExceiption(AuthenticationException e){
+        log.error("Exception: {}" , e);
+
+        ErrorResponse response = new ErrorResponse(ErrorCode.AUTHENTICAITON_ERROR, "인증되지 않은 사용자입니다.");
+        return ResponseEntity.status(ErrorCode.AUTHENTICAITON_ERROR.getHttpStatus()).body(response);
     }
 }
