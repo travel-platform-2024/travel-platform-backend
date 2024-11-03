@@ -49,9 +49,7 @@ public class SecurityConfig {
                         request.requestMatchers(
                                 new AntPathRequestMatcher(PathRequest.toH2Console().toString()),
                                 new AntPathRequestMatcher("/"),
-                                new AntPathRequestMatcher("/auth/success"),
-                                new AntPathRequestMatcher("/auth/signup"),
-                                new AntPathRequestMatcher("/auth/login"),
+                                new AntPathRequestMatcher("/auth/**"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
                                 new AntPathRequestMatcher("/swagger-resources/**"),
                                 new AntPathRequestMatcher("/v3/api-docs/**")

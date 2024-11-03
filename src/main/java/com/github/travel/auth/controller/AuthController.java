@@ -81,7 +81,7 @@ public class AuthController {
                     description = "로그인에 성공하였습니다.",
                     content = @Content(schema = @Schema(implementation = CommonResponse.class))),
             @ApiResponse(responseCode = "401",
-                    description = "E40001) 계정 정보가 맞지 않습니다.",
+                    description = "E40101) 계정 정보가 맞지 않습니다.",
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/auth/login")

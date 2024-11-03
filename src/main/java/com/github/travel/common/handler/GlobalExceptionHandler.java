@@ -38,7 +38,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuthenticationExceiption(AuthenticationException e){
         log.error("Exception: {}" , e);
 
-        ErrorResponse response = new ErrorResponse(ErrorCode.AUTHENTICAITON_ERROR, "인증되지 않은 사용자입니다.");
+        ErrorResponse response = new ErrorResponse(ErrorCode.LOGIN_FAIL, "계정 정보가 맞지 않습니다.");
         return ResponseEntity.status(ErrorCode.AUTHENTICAITON_ERROR.getHttpStatus()).body(response);
     }
+
 }

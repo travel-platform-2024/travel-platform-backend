@@ -22,7 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return memberRepository.findByEmail(username).map(this::createUserDetails)
-                .orElseThrow(() -> new ApiException(ErrorCode.LOGIN_FAIL, "계정 정보가 맞지 않습니다."));
+                .orElseThrow(() -> new UsernameNotFoundException(ErrorCode.LOGIN_FAIL.toString()));
     }
 
     private UserDetails createUserDetails(Member member){

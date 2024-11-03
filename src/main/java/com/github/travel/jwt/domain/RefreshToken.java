@@ -13,14 +13,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long refreshTokenId;
-
     private String email;
 
     private String refreshToken;
