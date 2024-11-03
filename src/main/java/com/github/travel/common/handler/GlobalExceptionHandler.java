@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleApiException(ApiException e) {
         log.error("Exception: {}" , e);
 
-        ErrorResponse response = new ErrorResponse(e.getErrorCode(), e.getMessage());
+        ErrorResponse response = new ErrorResponse(e.getErrorCode(), e.getErrorMessage());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(response);
     }
 
