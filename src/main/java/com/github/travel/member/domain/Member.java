@@ -1,6 +1,7 @@
 package com.github.travel.member.domain;
 
 
+import com.github.travel.auth.domain.OAuthAttributes;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,6 +1,8 @@
 package com.github.travel.common.config;
 
 
+import com.github.travel.auth.handler.OAuth2SuccessHandler;
+import com.github.travel.auth.service.CustomOAuth2UserService;
 import com.github.travel.common.handler.CustomAccessDeniedHandler;
 import com.github.travel.jwt.filter.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,12 +30,19 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
     private final JwtTokenFilter jwtTokenFilter;
     private final AuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder(){
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers("/error", "/favicon.ico");
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -49,6 +59,7 @@ public class SecurityConfig {
                         request.requestMatchers(
                                 new AntPathRequestMatcher(PathRequest.toH2Console().toString()),
                                 new AntPathRequestMatcher("/"),
+                                new AntPathRequestMatcher("/oauth2/**"),
                                 new AntPathRequestMatcher("/auth/**"),
                                 new AntPathRequestMatcher("/swagger-ui/**"),
                                 new AntPathRequestMatcher("/swagger-resources/**"),
@@ -56,10 +67,15 @@ public class SecurityConfig {
                                 ).permitAll()
                 .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2 ->
+                        oauth2
+                                .userInfoEndpoint(c -> c.userService(customOAuth2UserService))
+                                .successHandler(oAuth2SuccessHandler))
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(new CustomAccessDeniedHandler()));
+
+        http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

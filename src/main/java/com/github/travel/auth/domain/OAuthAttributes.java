@@ -8,41 +8,33 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 
 import java.util.Map;
 
+@Data
 @Builder
-public record OAuthAttributes (
-    Map<String, Object> attributes,
-    String name,
-    String email,
-    String picture,
-    LoginType loginType
-){
-    public static OAuthAttributes of(String registrationId, Map<String, Object> attributes) throws OAuth2AuthenticationException {
+@AllArgsConstructor
+@NoArgsConstructor
+public class OAuthAttributes{
+
+    private Map<String, Object> attributes;
+    private String userNameAttributeKey;
+    private String name;
+    private String email;
+    private String picture;
+    private LoginType loginType;
+
+    public static OAuthAttributes of(String registrationId,String userNameAttributeKey, Map<String, Object> attributes) throws OAuth2AuthenticationException {
         return switch (registrationId) {
-            case "google" -> ofGoogle(attributes);
-            case "kakao" -> ofKakao(attributes);
+            case "google" -> ofGoogle(userNameAttributeKey, attributes);
             default -> throw new OAuth2AuthenticationException("ILLIGAL REGISTRATION ID");
         };
     }
 
-    public static OAuthAttributes ofGoogle(Map<String, Object> attributes) {
+    public static OAuthAttributes ofGoogle(String userNameAttributeKey, Map<String, Object> attributes) {
         return OAuthAttributes.builder()
                 .loginType(LoginType.GOOGLE)
                 .name((String) attributes.get("name"))
                 .email((String) attributes.get("email"))
                 .picture((String) attributes.get("picture"))
-                .attributes(attributes)
-                .build();
-    }
-
-    private static OAuthAttributes ofKakao(Map<String, Object> attributes) {
-        Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
-        Map<String, Object> profile = (Map<String, Object>) account.get("profile");
-
-        return OAuthAttributes.builder()
-                .loginType(LoginType.KAKAO)
-                .name((String) attributes.get("name"))
-                .email((String) attributes.get("email"))
-                .picture((String) attributes.get("picture"))
+                .userNameAttributeKey(userNameAttributeKey)
                 .attributes(attributes)
                 .build();
     }
